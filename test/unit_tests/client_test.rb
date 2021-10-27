@@ -136,8 +136,7 @@ class UnitTestClientMethods < Minitest::Test
     mock_request.expect :call,
                         true,
                         [:method => :get,
-                         :url => 'https://' + @artifactory.server +
-                           '/artifactory/api/storage/' + @artifactory.repo_key + '/' + 'fake-object',
+                         :url => @artifactory.server + '/artifactory/api/storage/' + @artifactory.repo_key + '/' + 'fake-object',
                          :user => @artifactory.user, :password => @artifactory.password]
 
     RestClient::Request.stub :execute, mock_request do
@@ -210,8 +209,7 @@ class UnitTestClientMethods < Minitest::Test
     mock_request.expect :call,
                         true,
                         [:method => :get,
-                         :url => 'https://' + @artifactory.server +
-                           '/artifactory/api/storage/' + @artifactory.repo_key + '/' + 'fake-object',
+                         :url =>@artifactory.server + '/artifactory/api/storage/' + @artifactory.repo_key + '/' + 'fake-object',
                          :user => @artifactory.user, :password => @artifactory.password]
 
     RestClient::Request.stub :execute, mock_request do
@@ -320,8 +318,7 @@ class UnitTestClientMethods < Minitest::Test
     mock_request.expect :call,
                         true,
                         [:method => :delete,
-                         :url => 'https://' + @artifactory.server +
-                           '/artifactory/' + @artifactory.repo_key + '/' + 'fake-object',
+                         :url => @artifactory.server + '/artifactory/' + @artifactory.repo_key + '/' + 'fake-object',
                          :user => @artifactory.user, :password => @artifactory.password]
 
     RestClient::Request.stub :execute, mock_request do
@@ -372,8 +369,7 @@ class UnitTestClientMethods < Minitest::Test
     mock_request.expect :call,
                         true,
                         [:method => :get,
-                         :url => 'https://' + @artifactory.server +
-                           '/artifactory/api/storage/' + @artifactory.repo_key + '/' +
+                         :url => @artifactory.server + '/artifactory/api/storage/' + @artifactory.repo_key + '/' +
                            @artifactory.folder_path + '/',
                          :user => @artifactory.user, :password => @artifactory.password]
 
@@ -388,8 +384,7 @@ class UnitTestClientMethods < Minitest::Test
     mock_request.expect :call,
                         true,
                         [:method => :get,
-                         :url => 'https://' + @artifactory.server +
-                           '/artifactory/api/storage/' + @artifactory.repo_key + '/fake/',
+                         :url => @artifactory.server + '/artifactory/api/storage/' + @artifactory.repo_key + '/fake/',
                          :user => @artifactory.user, :password => @artifactory.password]
 
     RestClient::Request.stub :execute, mock_request do
@@ -482,8 +477,7 @@ class UnitTestClientMethods < Minitest::Test
     mock_request.expect :call,
                         true,
                         [:method => :get,
-                         :url => 'https://' + @artifactory.server +
-                           '/artifactory/api/storage/' + @artifactory.repo_key + '/' + 'fake-path',
+                         :url => @artifactory.server + '/artifactory/api/storage/' + @artifactory.repo_key + '/' + 'fake-path',
                          :user => @artifactory.user, :password => @artifactory.password]
 
     RestClient::Request.stub :execute, mock_request do
@@ -572,7 +566,7 @@ class UnitTestClientMethods < Minitest::Test
     mock_request.expect :call,
                         true,
                         [:method => :get,
-                         :url => "https://#{@artifactory.server}:443/ui/api/v1/ui/nativeBrowser/#{@artifactory.repo_key}/fake-path"]
+                         :url => "#{@artifactory.server}:443/ui/api/v1/ui/nativeBrowser/#{@artifactory.repo_key}/fake-path"]
 
     RestClient::Request.stub :execute, mock_request do
       @artifactory.get_children 'fake-path'
