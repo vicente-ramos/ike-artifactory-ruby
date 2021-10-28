@@ -30,7 +30,7 @@ module IKE
       end
 
       def ready?
-        if ([@server, @repo_key].include? nil ) || ([@user, @password].include? nil )
+        if ([server, repo_key].include? nil ) || ([user, password].include? nil )
           return false
         end
         true
@@ -41,9 +41,9 @@ module IKE
       def delete_object(path)
         RestClient::Request.execute(
           :method => :delete,
-          :url => @server + '/artifactory/' + @repo_key + '/' + path,
-          :user => @user,
-          :password => @password
+          :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
+          :user => user,
+          :password => password
         ) do |response, request, result|
           return response.code == 204
         end
@@ -53,9 +53,9 @@ module IKE
         directories = []
         RestClient::Request.execute(
           :method => :get,
-          :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + path + '/',
-          :user => @user,
-          :password => @password
+          :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
+          :user => user,
+          :password => password
         ) do |response, request, result|
           if response.code == 200
             answer = JSON.parse response.to_str
@@ -74,9 +74,9 @@ module IKE
       def get_days_old(path)
         RestClient::Request.execute(
           :method => :get,
-          :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + path,
-          :user => @user,
-          :password => @password
+          :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
+          :user => user,
+          :password => password
         ) do |response, request, result|
           if response.code == 200
             answer = JSON.parse response.to_str
@@ -90,9 +90,9 @@ module IKE
       def get_object_info(path)
         RestClient::Request.execute(
           :method => :get,
-          :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + path,
-          :user => @user,
-          :password => @password
+          :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
+          :user => user,
+          :password => password
         ) do |response, request, result|
           if response.code == 200
             return JSON.parse response.to_str
@@ -104,9 +104,9 @@ module IKE
         objects = {}
         RestClient::Request.execute(
           :method => :get,
-          :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + path,
-          :user => @user,
-          :password => @password
+          :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
+          :user => user,
+          :password => password
         )do |response, request, result|
           if response.code == 200
             hash_path = JSON.parse response.to_str
@@ -126,7 +126,7 @@ module IKE
         objects = {}
         RestClient::Request.execute(
           :method => :get,
-          :url => "#{@server}:443/ui/api/v1/ui/nativeBrowser/#{@repo_key}/#{path}",
+          :url => "#{server}:443/ui/api/v1/ui/nativeBrowser/#{repo_key}/#{path}",
         ) do |response, request, result|
           if response.code == 200
             hash_path = JSON.parse response.to_str
