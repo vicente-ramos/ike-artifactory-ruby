@@ -3,35 +3,46 @@ require "test_helper"
 
 TIME_LAST_MODIFIED_MILLISECONDS = (Time.now.to_i - 30*24*60*60) * 1000
 
+INITIALS_PARAMETERS = {
+  :server => TEST_SERVER,
+  :repo_key => TEST_REPO_KEY,
+  :folder_path => TEST_FOLDER_PATH,
+  :user => TEST_USER,
+  :password => TEST_PASSWORD
+}
+
 class UnitTestClientClass < Minitest::Test
 
   def setup
     super
-    @artifactory = IKE::Artifactory::Client.new()
+    @artifactory = IKE::Artifactory::Client.new(**INITIALS_PARAMETERS)
   end
 
   def test_server_arg
-    artifactory = IKE::Artifactory::Client.new(**{:server => 'some-fake-server'}) # should not fail
+    parameters = INITIALS_PARAMETERS
+    parameters[:server] = 'some-fake-server'
+    artifactory = IKE::Artifactory::Client.new(**parameters) # should not fail
     assert artifactory.server == 'some-fake-server'
   end
 
   def test_repo_key_arg
-    artifactory = IKE::Artifactory::Client.new(**{:repo_key => 'some-fake-repo_key'}) # should not fail
+    parameters = INITIALS_PARAMETERS
+    parameters[:repo_key] = 'some-fake-repo_key'
+    artifactory = IKE::Artifactory::Client.new(**parameters) # should not fail
     assert artifactory.repo_key == 'some-fake-repo_key'
   end
 
-  def test_folder_path_arg
-    artifactory = IKE::Artifactory::Client.new(**{:folder_path => 'some-fake-folder_path'}) # should not fail
-    assert artifactory.folder_path == 'some-fake-folder_path'
-  end
-
   def test_user_arg
-    artifactory = IKE::Artifactory::Client.new(**{:user => 'some-fake-user'}) # should not fail
+    parameters = INITIALS_PARAMETERS
+    parameters[:user] = 'some-fake-user'
+      artifactory = IKE::Artifactory::Client.new(**parameters) # should not fail
     assert artifactory.user == 'some-fake-user'
   end
 
   def test_password_arg
-    artifactory = IKE::Artifactory::Client.new(**{:password => 'some-fake-password'}) # should not fail
+    parameters = INITIALS_PARAMETERS
+    parameters[:password] = 'some-fake-password'
+      artifactory = IKE::Artifactory::Client.new(**parameters) # should not fail
     assert artifactory.password == 'some-fake-password'
   end
 
@@ -43,11 +54,6 @@ class UnitTestClientClass < Minitest::Test
   def test_repo_key_attribute
     assert @artifactory.respond_to? :repo_key
     assert @artifactory.respond_to? :repo_key=
-  end
-
-  def test_folder_path_attribute
-    assert @artifactory.respond_to? :folder_path
-    assert @artifactory.respond_to? :folder_path=
   end
 
   def test_user_attribute
@@ -70,63 +76,50 @@ class UnitTestClientMethods < Minitest::Test
 
   def setup
     super
-    @artifactory = IKE::Artifactory::Client.new(**{
-      :server => TEST_SERVER,
-      :repo_key => TEST_REPO_KEY,
-      :folder_path => TEST_FOLDER_PATH,
-      :user => TEST_USER,
-      :password => TEST_PASSWORD
-    })
+    @artifactory = IKE::Artifactory::Client.new(**INITIALS_PARAMETERS)
   end
 
   def test_not_ready
-    artifactory = IKE::Artifactory::Client.new()
-    refute artifactory.ready?
+    artifactory = IKE::Artifactory::Client.new(**INITIALS_PARAMETERS)
+    artifactory.password = nil
+    refute artifactory.send :ready?
   end
 
   def test_ready
-    artifactory = IKE::Artifactory::Client.new(**{
-      :server => TEST_SERVER,
-      :repo_key => TEST_REPO_KEY,
-      :folder_path => TEST_FOLDER_PATH,
-      :user => TEST_USER,
-      :password => TEST_PASSWORD
-    })
-    assert artifactory.ready?
+    artifactory = IKE::Artifactory::Client.new(**INITIALS_PARAMETERS)
+    assert artifactory.send :ready?
   end
 
   def test_no_password
-    artifactory = IKE::Artifactory::Client.new(**{
-      :server => TEST_SERVER,
-      :repo_key => TEST_REPO_KEY,
-      :folder_path => TEST_FOLDER_PATH,
-      :user => TEST_USER
-    })
-    refute artifactory.ready?
+    exception = assert_raises IKE::Artifactory::IKEArtifactoryClientNotReady do
+      artifactory = IKE::Artifactory::Client.new(**{
+        :server => TEST_SERVER,
+        :repo_key => TEST_REPO_KEY,
+        :folder_path => TEST_FOLDER_PATH,
+        :user => TEST_USER
+      })
+    end
+    assert_equal('Required attributes are missing. IKEArtifactoryGem not ready.', exception.message)
   end
 
   def test_no_auth_data
-    artifactory = IKE::Artifactory::Client.new(**{
-      :server => TEST_SERVER,
-      :repo_key => TEST_REPO_KEY,
-      :folder_path => TEST_FOLDER_PATH
-    })
-    refute artifactory.ready?
+    exception = assert_raises IKE::Artifactory::IKEArtifactoryClientNotReady do
+      artifactory = IKE::Artifactory::Client.new(**{
+        :server => TEST_SERVER,
+        :repo_key => TEST_REPO_KEY,
+        :folder_path => TEST_FOLDER_PATH
+      })
+    end
+    assert_equal('Required attributes are missing. IKEArtifactoryGem not ready.', exception.message)
   end
 
   def test_no_server
-    artifactory = IKE::Artifactory::Client.new(**{
-      :repo_key => TEST_REPO_KEY,
-      :folder_path => TEST_FOLDER_PATH,
-      :api_token => TEST_API_TOKEN
-    })
-    refute artifactory.ready?
-  end
-
-  def test_get_object_info_raise_not_ready
-    artifactory = IKE::Artifactory::Client.new()
     exception = assert_raises IKE::Artifactory::IKEArtifactoryClientNotReady do
-      artifactory.get_object_info 'fake-object'
+      artifactory = IKE::Artifactory::Client.new(**{
+        :repo_key => TEST_REPO_KEY,
+        :folder_path => TEST_FOLDER_PATH,
+        :api_token => TEST_API_TOKEN
+      })
     end
     assert_equal('Required attributes are missing. IKEArtifactoryGem not ready.', exception.message)
   end
@@ -194,14 +187,6 @@ class UnitTestClientMethods < Minitest::Test
         assert_equal({"test" => "fake-fake##"}, result)
       end
     end
-  end
-
-  def test_get_days_old_raise_not_ready
-    artifactory = IKE::Artifactory::Client.new()
-    exception = assert_raises IKE::Artifactory::IKEArtifactoryClientNotReady do
-      artifactory.get_days_old '/fake'
-    end
-    assert_equal('Required attributes are missing. IKEArtifactoryGem not ready.', exception.message)
   end
 
   def test_get_days_old_call_get_api
@@ -305,14 +290,6 @@ class UnitTestClientMethods < Minitest::Test
     end
   end
 
-  def test_delete_object_raise_not_ready
-    artifactory = IKE::Artifactory::Client.new()
-    exception = assert_raises IKE::Artifactory::IKEArtifactoryClientNotReady do
-      artifactory.delete_object 'fake-object'
-    end
-    assert_equal('Required attributes are missing. IKEArtifactoryGem not ready.', exception.message)
-  end
-
   def test_delete_object_call_get_api
     mock_request = Minitest::Mock.new
     mock_request.expect :call,
@@ -356,29 +333,6 @@ class UnitTestClientMethods < Minitest::Test
     end
   end
 
-  def test_get_directories_raise_not_ready
-    artifactory = IKE::Artifactory::Client.new()
-    exception = assert_raises IKE::Artifactory::IKEArtifactoryClientNotReady do
-      artifactory.get_directories('/fake')
-    end
-    assert_equal('Required attributes are missing. IKEArtifactoryGem not ready.', exception.message)
-  end
-
-  def test_get_directories_folder_path_is_default
-    mock_request = Minitest::Mock.new
-    mock_request.expect :call,
-                        true,
-                        [:method => :get,
-                         :url => @artifactory.server + '/artifactory/api/storage/' + @artifactory.repo_key + '/' +
-                           @artifactory.folder_path + '/',
-                         :user => @artifactory.user, :password => @artifactory.password]
-
-    RestClient::Request.stub :execute, mock_request do
-      @artifactory.get_directories
-    end
-    assert_mock mock_request
-  end
-
   def test_get_directories_folder_path_parameter
     mock_request = Minitest::Mock.new
     mock_request.expect :call,
@@ -400,7 +354,7 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
-      result = @artifactory.get_directories
+      result = @artifactory.get_directories 'fake-path'
       assert result.nil?
     end
   end
@@ -413,7 +367,7 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
-      result = @artifactory.get_directories
+      result = @artifactory.get_directories 'fake-path'
       assert_instance_of Array, result
       assert_empty result
     end
@@ -430,7 +384,7 @@ class UnitTestClientMethods < Minitest::Test
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
       JSON.stub :parse, mock_json_parse do
-        @artifactory.get_directories
+        @artifactory.get_directories 'fake-path'
       end
     end
     assert_mock mock_json_parse
@@ -444,7 +398,7 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
-      result = @artifactory.get_directories
+      result = @artifactory.get_directories 'fake-path'
       assert_includes result, 'fake1'
       assert_includes result, 'fake2'
     end
@@ -458,18 +412,10 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
-      result = @artifactory.get_directories
+      result = @artifactory.get_directories 'fake-path'
       assert_includes result, 'fake1'
       refute_includes result, 'fake2'
     end
-  end
-
-  def test_get_objects_by_days_old_raise
-    artifactory = IKE::Artifactory::Client.new()
-    exception = assert_raises IKE::Artifactory::IKEArtifactoryClientNotReady do
-      artifactory.get_objects_by_days_old 'fake-path'
-    end
-    assert_equal('Required attributes are missing. IKEArtifactoryGem not ready.', exception.message)
   end
 
   def test_get_objects_by_days_old_call_get_api
@@ -551,14 +497,6 @@ class UnitTestClientMethods < Minitest::Test
         end
       end
     end
-  end
-
-  def test_get_children_raise_not_ready
-    artifactory = IKE::Artifactory::Client.new()
-    exception = assert_raises IKE::Artifactory::IKEArtifactoryClientNotReady do
-      artifactory.get_children 'fake-path'
-    end
-    assert_equal('Required attributes are missing. IKEArtifactoryGem not ready.', exception.message)
   end
 
   def test_get_children_call_get_api

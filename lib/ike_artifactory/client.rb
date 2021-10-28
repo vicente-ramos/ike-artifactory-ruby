@@ -19,9 +19,10 @@ module IKE
       def initialize(**args)
         @server = args[:server]
         @repo_key = args[:repo_key]
-        @folder_path = args[:folder_path]
         @user = args[:user]
         @password = args[:password]
+
+        raise IKEArtifactoryClientNotReady.new(msg = 'Required attributes are missing. IKEArtifactoryGem not ready.') unless self.ready?
       end
 
       def log_end_task
@@ -29,18 +30,18 @@ module IKE
       end
 
       def ready?
-        if ([@server, @repo_key, @folder_path].include? nil ) || ([@user, @password].include? nil )
+        if ([@server, @repo_key].include? nil ) || ([@user, @password].include? nil )
           return false
         end
         true
       end
 
-      def delete_object(object_path)
-        raise IKEArtifactoryClientNotReady.new(msg = 'Required attributes are missing. IKEArtifactoryGem not ready.') unless self.ready?
+      private :ready?
 
+      def delete_object(path)
         RestClient::Request.execute(
           :method => :delete,
-          :url => @server + '/artifactory/' + @repo_key + '/' + object_path,
+          :url => @server + '/artifactory/' + @repo_key + '/' + path,
           :user => @user,
           :password => @password
         ) do |response, request, result|
@@ -48,14 +49,8 @@ module IKE
         end
       end
 
-      def get_directories(path = nil)
+      def get_directories(path)
         directories = []
-        raise IKEArtifactoryClientNotReady.new(msg = 'Required attributes are missing. IKEArtifactoryGem not ready.') unless self.ready?
-
-        if path.nil?
-          path = @folder_path
-        end
-
         RestClient::Request.execute(
           :method => :get,
           :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + path + '/',
@@ -76,12 +71,10 @@ module IKE
         end
       end
 
-      def get_days_old(object_path)
-        raise IKEArtifactoryClientNotReady.new(msg='Required attributes are missing. IKEArtifactoryGem not ready.') unless self.ready?
-
+      def get_days_old(path)
         RestClient::Request.execute(
           :method => :get,
-          :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + object_path,
+          :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + path,
           :user => @user,
           :password => @password
         ) do |response, request, result|
@@ -94,12 +87,10 @@ module IKE
         end
       end
 
-      def get_object_info(object_path)
-        raise IKEArtifactoryClientNotReady.new(msg = 'Required attributes are missing. IKEArtifactoryGem not ready.') unless self.ready?
-
+      def get_object_info(path)
         RestClient::Request.execute(
           :method => :get,
-          :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + object_path,
+          :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + path,
           :user => @user,
           :password => @password
         ) do |response, request, result|
@@ -111,7 +102,6 @@ module IKE
 
       def get_objects_by_days_old(path)
         objects = {}
-        raise IKEArtifactoryClientNotReady.new(msg = 'Required attributes are missing. IKEArtifactoryGem not ready.') unless self.ready?
         RestClient::Request.execute(
           :method => :get,
           :url => @server + '/artifactory/api/storage/' + @repo_key + '/' + path,
@@ -134,7 +124,6 @@ module IKE
 
       def get_children(path)
         objects = {}
-        raise IKEArtifactoryClientNotReady.new(msg = 'Required attributes are missing. IKEArtifactoryGem not ready.') unless self.ready?
         RestClient::Request.execute(
           :method => :get,
           :url => "#{@server}:443/ui/api/v1/ui/nativeBrowser/#{@repo_key}/#{path}",

@@ -32,7 +32,6 @@ module IKE
         @client = IKE::Artifactory::Client.new(
           :server => repo_host,
           :repo_key => repo_key,
-          :folder_path => folder,
           :user => user,
           :password => password
         )
