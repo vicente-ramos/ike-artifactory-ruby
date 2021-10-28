@@ -1,101 +1,45 @@
 # IKE Artifactory
 
-Gem to interact with Artifactory using Ruby language.
+This gem provides an object-oriented interface to Artifactory API for managing objects in Artfactory, 
+particularly for cleaning up old Docker images
 
-## API
+## Classes
 
-#### ready
-Some IKE Artifactory Client's methods use the *ready* method to check if the instance has valid values in its
-attributes:
+Classes are located in `lib` directory. IKE:Artifactory implements two classes:
 
-* *server*: Artifactory server hostname.
-* *repo_key*: Repository in Artifactory server.
-* *folder_path*: Folder path inside repository.
-* *user*: Username to be used to access repository.
-* *password*: User's password.
+* `IKE::Artifactory::Client` class: Implements any method that calls Artifactory's API, and also other helpful methods.
+  It is a layer between Artifactory's API and its users.
+  
+* `IKE::Artifactory::DockerCleaner` class: Using `IKE::Artifactory::Client` implements a single method called `cleanup!` 
+  that let's you specify a path in Artifactory that has docker container image tags, a list of tags to be excluded, 
+  other parameters; and will clean all container images meeting the resulting conditions created with the parameters.
 
-##### Parameters
-Do not have parameters.
+## Script
 
-##### Usage
+The script is located in `bin` directory:
 
-    irb > artifactory = IKE::Artifactory::Client.new()
-    => #<IKE::Artifactory::Client:0x00007f9b20ce81b0 @server=nil, @repo_key=nil, @folder_path=nil, @user=nil, @password=nil>
-    irb > artifactory.ready?
-    => false
-
-##### Returns
-True if the instance has valid values in its attributes. False in any other case
+* `cleaner.rb`: A script to clean docker container images from a specified Artifactory repository. Read more about 
+  this script in this [doc](README.cleaner.md)
 
 
-#### get_days_old
-Returns the days since the last update of the given object. 
+## Installation
 
-##### Parameters
-* *object_path*: The full path to the object: folder_path/directory/.../object.
+Add this line to your application's Gemfile:
 
-##### Usage
+```ruby
+gem 'ike-artifactory-ruby'
+```
 
-    irb > artifactory = IKE::Artifactory::Client.new()
-    ...
-    irb > artifactory.get_days_old 'ib/fedora/34'
+And then execute:
 
-##### Returns
-The amount of days since the last update.
+    $ bundle install
 
-#### evaluate_container_image
-This method evaluates if the given container image (path in artifactory repository) meets the given conditions. Returns
-boolean:
+Or install it yourself as:
 
-* *true*: The given container image meet the conditions.
-* *false*: The given container images do not meet the conditions.
+    $ gem install ike-artifactory-ruby
 
-##### Parameters:
+## Usage
 
-* *image*: Path to the folder containing container image tags. Path without server host name.
-* *tag*: Tag of container image to be evaluated.
-* *production_images*: Lists with production container image tags. Any tag in this list will satisfy the conditions.
-* *days_old*: The number of days (since modified) before removing any other images (aka pulled with a user different to
-  *service_account*).
-
-##### Usage
-
-    irb > artifactory = IKE::Artifactory::Client.new()
-    ...
-    irb > artifactory.evaluate_container_image 'amos', '<some_tag>', [<tag1>, ..., <tagN>], 30
-
-##### Returns
-True when the *tag* of the *image* meets the given conditions. false in any other case.
-
-#### get_object_info
-Returns a hash with information about the given object.
-
-##### Parameters:
-
-* *object_path*: The full path to the object: folder_path/directory/.../object.
-
-##### Usage
-
-    irb > artifactory = IKE::Artifactory::Client.new()
-    ...
-    irb > artifactory.get_object_info 'ib/fedora/34'
-
-##### Returns
-Hash with object's information
-
-
-#### delete_object
-Remove the given object (file or folder) from repository.
-
-##### Parameters:
-
-* *object_path*: The full path to the object: folder_path/directory/.../object.
-
-##### Usage
-
-    irb > artifactory = IKE::Artifactory::Client.new()
-    ...
-    irb > artifactory.delete_object 'ib/fedora/34'
-
-##### Returns
-True in case of deleting the object. False in any other case
+```ruby
+require 'ike-artifactor'
+```
