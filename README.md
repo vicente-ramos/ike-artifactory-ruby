@@ -43,3 +43,56 @@ Or install it yourself as:
 ```ruby
 require 'ike-artifactor'
 ```
+
+### Client
+
+To create an instance of IKE::Artifactory::Client you will need to provide next parameters:
+* *server*: Artifactory server URL. 
+* *repo_key*: Repository in Artifactory server.
+* *user*: Username to be used to access repository.
+* *password*: User's password.
+
+Example:
+```ruby
+require 'ike-artifactor'
+require 'pp'
+
+artifactory_client = IKE::Artifactory::Client(
+        :server => 'https://artifactory.mydomain.com',
+        :repo_key => 'repo-key-example',
+        :user => 'Ana',
+        :password => 'password'
+)
+
+object_info = artifactory_client.get_object_info 'path/to/object'
+
+```
+The output will be a hase with the proprieties of the queried object:
+```ruby
+irb > pp(object_info)
+{"repo"=>"repo-key-example",
+ "path"=>"path/to/object",
+ "created"=>"2021-05-25T15:27:21.592-07:00",
+ "createdBy"=>"some-user",
+ "lastModified"=>"2021-05-25T15:27:21.592-07:00",
+ "modifiedBy"=>"other-userr",
+ "lastUpdated"=>"2021-05-25T15:27:21.592-07:00",
+ "children"=>
+  [{"uri"=>"/manifest.json", "folder"=>false},
+   {"uri"=>
+     "/sha256__4f07dd360c1b7e40c438e6437b2044bc31b4f6e5cf36b09a06b0c67e23dfc69d",
+    "folder"=>false},
+   {"uri"=>
+     "/sha256__70fb9965a23f2226fef622992fdf507b8333c61d68259766d4721cc4ba1e5dae",
+    "folder"=>false},
+   {"uri"=>
+     "/sha256__e0f9e11d6f9b3f5af2915fd4839ea0cd268ddccce28a788f54687b6a494770bb",
+    "folder"=>false}],
+ "uri"=>
+  "https://artifactory.mydomain.com:443/artifactory/api/storage/repo-key-example/path/to/object"}
+```
+
+
+
+
+
