@@ -419,7 +419,8 @@ class UnitTestClientMethods < Minitest::Test
     mock_request.expect :call,
                         true,
                         [:method => :get,
-                         :url => "#{@artifactory.server}:443/ui/api/v1/ui/nativeBrowser/#{@artifactory.repo_key}/fake-path"]
+                         :url => "#{@artifactory.server}:443/ui/api/v1/ui/nativeBrowser/#{@artifactory.repo_key}/fake-path",
+                         :user => @artifactory.user, :password => @artifactory.password]
 
     RestClient::Request.stub :execute, mock_request do
       @artifactory.get_subdirectory_ages 'fake-path'

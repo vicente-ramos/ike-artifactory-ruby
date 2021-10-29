@@ -25,94 +25,40 @@ module IKE
         raise IKEArtifactoryClientNotReady.new(msg = 'Required attributes are missing. IKEArtifactoryGem not ready.') unless self.ready?
       end
 
-      def ready?
-        if ([server, repo_key].include? nil ) || ([user, password].include? nil )
-          return false
-        end
-        true
-      end
-
-      private :ready?
-
       def delete_object(path)
-        RestClient::Request.execute(
-          :method => :delete,
-          :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
-          :user => user,
-          :password => password
-        ) do |response, request, result|
-          return response.code == 204
+        fetch(path, method: :delete) do |response, request, result|
+          response.code == 204
         end
       end
 
       def get_subdirectories(path)
-        directories = []
-        RestClient::Request.execute(
-          :method => :get,
-          :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
-          :user => user,
-          :password => password
-        ) do |response, request, result|
-          if response.code == 200
-            answer = JSON.parse response.to_str
-            return directories unless answer.key?('children')
-
-            answer['children'].each do |child|
-              if child['folder']
-                directories.append child['uri'][1..]
-              end
-            end
-            return directories
+        get(path) do |response|
+          (response['children'] || []).select do |c|
+            c['folder']
+          end.map do |f|
+            f['uri'][1..]
           end
         end
       end
 
       def get_object_age(path)
-        RestClient::Request.execute(
-          :method => :get,
-          :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
-          :user => user,
-          :password => password
-        ) do |response, request, result|
-          if response.code == 200
-            answer = JSON.parse response.to_str
-            return ( ( Time.now - Time.iso8601(answer['lastModified']) ) / (24*60*60) ).to_int
-          else
-            nil
-          end
+        get(path) do |response|
+          ( ( Time.now - Time.iso8601(response['lastModified']) ) / (24*60*60) ).to_int
         end
       end
 
       def get_object_info(path)
-        RestClient::Request.execute(
-          :method => :get,
-          :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
-          :user => user,
-          :password => password
-        ) do |response, request, result|
-          if response.code == 200
-            return JSON.parse response.to_str
-          end
-        end
+        get(path)
       end
 
       def get_subdirectory_ages(path)
-        objects = {}
-        RestClient::Request.execute(
-          :method => :get,
-          :url => "#{server}:443/ui/api/v1/ui/nativeBrowser/#{repo_key}/#{path}",
-        ) do |response, request, result|
-          if response.code == 200
-            hash_path = JSON.parse response.to_str
-            hash_path['children'].each do | child |
-              days_old = ( ( Time.now.to_i - (child['lastModified']/1000) ) / (24*60*60) ).to_int
-              objects[child['name']] = days_old
-            end
-          else
-            return nil
+        get(path, prefix: "#{server}:443/ui/api/v1/ui/nativeBrowser/#{repo_key}") do |response|
+          (response['children'] || []).each_with_object({}) do |child, memo|
+            days_old = ( ( Time.now.to_i - (child['lastModified']/1000) ) / (24*60*60) ).to_int
+            memo[child['name']] = days_old
+            memo
           end
         end
-        objects
       end
 
       def get_images(path)
@@ -120,6 +66,51 @@ module IKE
           get_object_info([path, folder, IMAGE_MANIFEST].join('/'))
         end
       end
+
+      private
+
+      def ready?
+        if ([server, repo_key].include? nil ) || ([user, password].include? nil )
+          return false
+        end
+        true
+      end
+
+      def fetch(path, method: :get, prefix: nil)
+        retval = nil # Work around Object#stub stomping on return values
+
+        prefix ||= "#{server}/artifactory/api/storage/#{repo_key}"
+
+        RestClient::Request.execute(
+          :method => method,
+          :url => "#{prefix}/#{path}",
+          :user => user,
+          :password => password
+        ) do |response, request, result|
+          retval =
+            if block_given?
+              yield response, request, result
+            else
+              [response, request, result]
+            end
+        end
+
+        retval
+      end
+
+      def get(path, prefix: nil)
+        fetch(path, prefix: prefix) do |response, request, result|
+          if response.code == 200
+            obj = JSON.parse(response.to_str)
+            if block_given?
+              yield obj
+            else
+              obj
+            end
+          end
+        end
+      end
+
     end
   end
 end
