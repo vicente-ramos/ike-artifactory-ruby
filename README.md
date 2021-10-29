@@ -9,7 +9,7 @@ This gem implements two classes:
 
 * `IKE::Artifactory::Client`: Interfaces with the Artifactory API
 * `IKE::Artifactory::DockerCleaner`: Uses `IKE::Artifactory::Client` to implement a single method called `cleanup!` that lets you specify a path in Artifactory that has Docker container images. The `cleanup!` method will delete all images except the following:
-  * a list of tags to be excluded (`images_exclude_list`)
+  * a list of tags to be excluded (`tags_to_exclude`)
   * any images less than a certain age (`days_old`)
   * any the most recent N images, regardless of age (`most_recent_images`)
 
@@ -111,7 +111,7 @@ The constructor arguments of IKE::Artifactory::DockerCleaner are the following:
 * `folder`: The repository path to be cleaned. `cleanup!` only cleans a single path (directory) and does not recurse
 * `days_old`: The cutoff age for deletion of images. Any images less that `days_old` old will not be cleaned up.
 * `most_recent_images`: The number of most recent container images to keep, regardless of age
-* `images_exclude_list`: List of Docker container tags to be excluded from deletion, regardless of age
+* `tags_to_exclude`: List of Docker container tags to be excluded from deletion, regardless of age
 * `user`: The username to be used to access repository
 * `password`: User's password.
 * `log_level` (optional): Logging verbosity, from the `Logger` Ruby core class. Defaults to ::Logger::INFO.
@@ -133,7 +133,7 @@ images_to_delete = IKE::Artifactory::DockerCleaner.new(
         :folder => 'path/to/folder',
         :days_old => 30,
         :most_recent_images => 5,
-        :images_exclude_list => ['tag1', 'tag2', 'tag3'],
+        :tags_to_exclude => ['tag1', 'tag2', 'tag3'],
         :user => 'Ana',
         :password => 'supersecret'
 ).cleanup!
