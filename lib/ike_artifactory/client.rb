@@ -50,7 +50,6 @@ module IKE
       end
 
       def get_subdirectories(path)
-        # Return array of strings. Each string is a names of a subdirectory.
         directories = []
         RestClient::Request.execute(
           :method => :get,
@@ -101,7 +100,7 @@ module IKE
         end
       end
 
-      def get_children(path)
+      def get_subdirectories_by_days_old(path)
         objects = {}
         RestClient::Request.execute(
           :method => :get,
@@ -121,7 +120,7 @@ module IKE
       end
 
       def get_images(path)
-        get_children(path).select do |(folder, _age)|
+        get_subdirectories_by_days_old(path).select do |(folder, _age)|
           get_object_info([path, folder, IMAGE_MANIFEST].join('/'))
         end
       end

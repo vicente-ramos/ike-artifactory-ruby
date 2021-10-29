@@ -426,7 +426,7 @@ class UnitTestClientMethods < Minitest::Test
                          :url => "#{@artifactory.server}:443/ui/api/v1/ui/nativeBrowser/#{@artifactory.repo_key}/fake-path"]
 
     RestClient::Request.stub :execute, mock_request do
-      @artifactory.get_children 'fake-path'
+      @artifactory.get_subdirectories_by_days_old 'fake-path'
     end
     assert_mock mock_request
   end
@@ -439,7 +439,7 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake-request', 'fake-result'] do
-      result = @artifactory.get_children 'fake-path'
+      result = @artifactory.get_subdirectories_by_days_old 'fake-path'
       assert_nil result
     end
   end
@@ -458,7 +458,7 @@ class UnitTestClientMethods < Minitest::Test
                              nil,
                              [mock_response, 'fake-request', 'fake-result'] do
       JSON.stub :parse, mock_json_parse do
-        @artifactory.get_children 'fake-path'
+        @artifactory.get_subdirectories_by_days_old 'fake-path'
       end
     end
     assert_mock mock_json_parse
@@ -476,7 +476,7 @@ class UnitTestClientMethods < Minitest::Test
                              nil,
                              [mock_response, 'fake-request', 'fake-result'] do
       JSON.stub :parse, object_info do
-        objects = @artifactory.get_children 'fake-path'
+        objects = @artifactory.get_subdirectories_by_days_old 'fake-path'
         assert objects.has_key?('fake1')
         assert objects.has_key?('fake2')
       end
@@ -495,7 +495,7 @@ class UnitTestClientMethods < Minitest::Test
                              nil,
                              [mock_response, 'fake-request', 'fake-result'] do
       JSON.stub :parse, object_info do
-        objects = @artifactory.get_children 'fake-path'
+        objects = @artifactory.get_subdirectories_by_days_old 'fake-path'
         assert_equal 30, objects['fake1']
         assert_equal 30, objects['fake2']
       end
