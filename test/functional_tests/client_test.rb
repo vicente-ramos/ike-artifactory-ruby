@@ -7,17 +7,9 @@ class ClientFunctionalTest < Minitest::Test
     @artifactory = IKE::Artifactory::Client.new(
       :server => TEST_SERVER,
       :repo_key => TEST_REPO_KEY,
-      :folder_path => TEST_FOLDER_PATH,
       :user => TEST_USER,
       :password => TEST_PASSWORD
     )
-  end
-
-  def test_setup_attributes
-    artifactory = IKE::Artifactory::Client.new()
-    artifactory.server = TEST_SERVER
-    artifactory.repo_key = TEST_REPO_KEY
-    artifactory.folder_path = TEST_FOLDER_PATH
   end
 
   def test_get_days_old_get_days_old_is_integer
