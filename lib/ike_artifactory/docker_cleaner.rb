@@ -24,7 +24,7 @@ module IKE
         @repo_key = repo_key
         @folder = folder
         @days_old = days_old
-        @tags_to_exclude = tags_to_exclude
+        @tags_to_exclude = tags_to_exclude || []
         @most_recent_images = most_recent_images
 
         @actually_delete = actually_delete
