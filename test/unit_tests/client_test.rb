@@ -66,10 +66,6 @@ class UnitTestClientClass < Minitest::Test
     assert @artifactory.respond_to? :password=
   end
 
-  def test_logs_end_of_work
-    assert_equal "IKEArtifactoryGem end it's tasks", @artifactory.log_end_task
-  end
-
 end
 
 class UnitTestClientMethods < Minitest::Test

@@ -25,10 +25,6 @@ module IKE
         raise IKEArtifactoryClientNotReady.new(msg = 'Required attributes are missing. IKEArtifactoryGem not ready.') unless self.ready?
       end
 
-      def log_end_task
-        "IKEArtifactoryGem end it's tasks"
-      end
-
       def ready?
         if ([server, repo_key].include? nil ) || ([user, password].include? nil )
           return false
