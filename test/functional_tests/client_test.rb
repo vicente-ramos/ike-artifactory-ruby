@@ -33,7 +33,7 @@ class ClientFunctionalTest < Minitest::Test
   end
 
   def test_get_directories
-    result = @artifactory.get_directories '/ib'
+    result = @artifactory.get_subdirectories '/ib'
 
     assert_includes result, 'ship-it'
     assert_includes result, 'ruby-testing'

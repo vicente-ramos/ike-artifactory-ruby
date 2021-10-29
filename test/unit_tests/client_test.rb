@@ -342,7 +342,7 @@ class UnitTestClientMethods < Minitest::Test
                          :user => @artifactory.user, :password => @artifactory.password]
 
     RestClient::Request.stub :execute, mock_request do
-      @artifactory.get_directories 'fake'
+      @artifactory.get_subdirectories 'fake'
     end
     assert_mock mock_request
   end
@@ -354,7 +354,7 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
-      result = @artifactory.get_directories 'fake-path'
+      result = @artifactory.get_subdirectories 'fake-path'
       assert result.nil?
     end
   end
@@ -367,7 +367,7 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
-      result = @artifactory.get_directories 'fake-path'
+      result = @artifactory.get_subdirectories 'fake-path'
       assert_instance_of Array, result
       assert_empty result
     end
@@ -384,7 +384,7 @@ class UnitTestClientMethods < Minitest::Test
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
       JSON.stub :parse, mock_json_parse do
-        @artifactory.get_directories 'fake-path'
+        @artifactory.get_subdirectories 'fake-path'
       end
     end
     assert_mock mock_json_parse
@@ -398,7 +398,7 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
-      result = @artifactory.get_directories 'fake-path'
+      result = @artifactory.get_subdirectories 'fake-path'
       assert_includes result, 'fake1'
       assert_includes result, 'fake2'
     end
@@ -412,7 +412,7 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake1', 'fake2' ] do
-      result = @artifactory.get_directories 'fake-path'
+      result = @artifactory.get_subdirectories 'fake-path'
       assert_includes result, 'fake1'
       refute_includes result, 'fake2'
     end

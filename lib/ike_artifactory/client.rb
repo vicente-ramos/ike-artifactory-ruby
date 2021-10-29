@@ -49,7 +49,8 @@ module IKE
         end
       end
 
-      def get_directories(path)
+      def get_subdirectories(path)
+        # Return array of strings. Each string is a names of a subdirectory.
         directories = []
         RestClient::Request.execute(
           :method => :get,
