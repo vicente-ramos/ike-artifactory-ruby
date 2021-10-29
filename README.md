@@ -91,7 +91,7 @@ Returns `true` if the object pointed by path was successfully deleted, otherwise
 ##### `get_subdirectories(path)`
 Returns a list of subdirectories of the specified `path`.
 
-##### `get_days_old(path)`
+##### `get_object_age(path)`
 Returns the age of the object specified by `path`, or -1 if the age of the object could not be determined (for example, if it does not exist).
 
 ##### `get_object_info(path)`

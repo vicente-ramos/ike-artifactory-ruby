@@ -67,7 +67,7 @@ module IKE
         end
       end
 
-      def get_days_old(path)
+      def get_object_age(path)
         RestClient::Request.execute(
           :method => :get,
           :url => "#{server}/artifactory/api/storage/#{repo_key}/#{path}",
@@ -78,7 +78,7 @@ module IKE
             answer = JSON.parse response.to_str
             return ( ( Time.now - Time.iso8601(answer['lastModified']) ) / (24*60*60) ).to_int
           else
-            return -1
+            nil
           end
         end
       end

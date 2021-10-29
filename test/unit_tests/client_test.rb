@@ -185,7 +185,7 @@ class UnitTestClientMethods < Minitest::Test
     end
   end
 
-  def test_get_days_old_call_get_api
+  def test_get_object_age_call_get_api
     mock_request = Minitest::Mock.new
     mock_request.expect :call,
                         true,
@@ -194,12 +194,12 @@ class UnitTestClientMethods < Minitest::Test
                          :user => @artifactory.user, :password => @artifactory.password]
 
     RestClient::Request.stub :execute, mock_request do
-      @artifactory.get_days_old 'fake-object'
+      @artifactory.get_object_age 'fake-object'
     end
     assert_mock mock_request
   end
 
-  def test_get_days_old_return_negative_if_fail
+  def test_get_object_age_return_negative_if_fail
     mock_response = Minitest::Mock.new
     mock_response.expect :code, 404
     mock_response.expect :to_str, '{ "test": "fake" }'
@@ -207,12 +207,12 @@ class UnitTestClientMethods < Minitest::Test
     RestClient::Request.stub :execute,
                              nil,
                              [mock_response, 'fake-request', 'fake-result'] do
-      result = @artifactory.get_days_old 'fake-object'
-      assert_equal(-1, result)
+      result = @artifactory.get_object_age 'fake-object'
+      assert_nil(result)
     end
   end
 
-  def test_get_days_old_json_parse_called
+  def test_get_object_age_json_parse_called
     mock_response = Minitest::Mock.new
     mock_response.expect :code, 200
     mock_response.expect :to_str, '{ "test": "fake", "lastModified": "2021-09-14T12:27:00.10" }'
@@ -225,13 +225,13 @@ class UnitTestClientMethods < Minitest::Test
                              nil,
                              [mock_response, 'fake-request', 'fake-result'] do
       JSON.stub :parse, mock_json do
-        @artifactory.get_days_old 'fake-object'
+        @artifactory.get_object_age 'fake-object'
       end
     end
     assert_mock mock_json
   end
 
-  def test_get_days_old_call_time_with_last_updated
+  def test_get_object_age_call_time_with_last_updated
     mock_response = Minitest::Mock.new
     mock_response.expect :code, 200
     mock_response.expect :to_str, '{ "test": "fake", "lastModified": "2021-09-14T12:27:00.10" }'
@@ -243,14 +243,14 @@ class UnitTestClientMethods < Minitest::Test
                              [mock_response, 'fake-request', 'fake-result'] do
       JSON.stub :parse, { 'uri' => 'fake-host', 'lastModified' => '2021-09-14T12:27:00.10'} do
         Time.stub :iso8601, mock_time do
-          @artifactory.get_days_old 'fake-object'
+          @artifactory.get_object_age 'fake-object'
         end
       end
     end
     assert_mock mock_time
   end
 
-  def test_get_days_old_call_time_now
+  def test_get_object_age_call_time_now
     mock_response = Minitest::Mock.new
     mock_response.expect :code, 200
     mock_response.expect :to_str, '{ "test": "fake", "lastModified": "2021-09-14T12:27:00.10" }'
@@ -262,14 +262,14 @@ class UnitTestClientMethods < Minitest::Test
                              [mock_response, 'fake-request', 'fake-result'] do
       JSON.stub :parse, { 'uri' => 'fake-host', 'lastModified' => '2021-09-14T12:27:00.10'} do
         Time.stub :now, mock_time do
-          @artifactory.get_days_old 'fake-object'
+          @artifactory.get_object_age 'fake-object'
         end
       end
     end
     assert_mock mock_time
   end
 
-  def test_get_days_old_return_days_subtract
+  def test_get_object_age_return_days_subtract
     mock_response = Minitest::Mock.new
     mock_response.expect :code, 200
     mock_response.expect :to_str, '{ "test": "fake", "lastModified": "2021-09-14T12:27:00.10" }'
@@ -279,7 +279,7 @@ class UnitTestClientMethods < Minitest::Test
                              [mock_response, 'fake-request', 'fake-result'] do
       JSON.stub :parse, { 'uri' => 'fake-host', 'lastModified' => '2021-09-14T12:27:00.10'} do
         Time.stub :iso8601, (Time.now - (20*24*60*60)) do
-          result = @artifactory.get_days_old 'fake-object'
+          result = @artifactory.get_object_age 'fake-object'
           assert_equal 20, result
         end
       end
@@ -498,6 +498,3 @@ class UnitTestClientMethods < Minitest::Test
     end
   end
 end
-
-
-
