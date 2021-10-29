@@ -97,7 +97,7 @@ Returns the age of the object specified by `path`, or -1 if the age of the objec
 ##### `get_object_info(path)`
 Returns a hash with the proprieties of the queried object.
 
-##### `get_subdirectories_by_days_old(path)`
+##### `get_subdirectory_ages(path)`
 Returns a hash whose keys are the names of the subdirectories of `path`, and whose values are the `lastModified` age in days of the directory in question.
 
 ##### `get_images(path)`

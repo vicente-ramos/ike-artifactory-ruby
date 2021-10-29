@@ -96,7 +96,7 @@ module IKE
         end
       end
 
-      def get_subdirectories_by_days_old(path)
+      def get_subdirectory_ages(path)
         objects = {}
         RestClient::Request.execute(
           :method => :get,
@@ -116,7 +116,7 @@ module IKE
       end
 
       def get_images(path)
-        get_subdirectories_by_days_old(path).select do |(folder, _age)|
+        get_subdirectory_ages(path).select do |(folder, _age)|
           get_object_info([path, folder, IMAGE_MANIFEST].join('/'))
         end
       end
