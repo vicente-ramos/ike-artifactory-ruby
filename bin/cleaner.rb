@@ -10,12 +10,13 @@ if ARGV[0] == '--actually-delete'
   actually_delete = true
 end
 
-unless [6,7].include?(ARGV.count)
-  STDERR.puts "Usage: $0 [--actually-delete] repo_url username password application_list image_exclude_list days_to_keep [most_recent_images_to_keep]"
+unless [7,8].include?(ARGV.count)
+  STDERR.puts "Usage: $0 [--actually-delete] artifactory_url repo_key username password application_list image_exclude_list days_to_keep [most_recent_images_to_keep]"
   exit 1
 end
 
-repo_url = ARGV.shift
+artifactory_url = ARGV.shift
+repo_key = ARGV.shift
 user = ARGV.shift
 password = ARGV.shift
 application_list = ARGV.shift
@@ -36,10 +37,10 @@ unless apps.count
 end
 
 images_to_keep = File.readlines(image_exclude_list).each_with_object({}) do |line, keep|
-  parts = line.chomp.split(/[:\/]/)
-  if parts.length == 3
-    keep[parts[1]] ||= []
-    keep[parts[1]] << parts[2]
+  parts = line.chomp.split(/:/)
+  if parts.length == 2
+    keep[parts[0]] ||= []
+    keep[parts[0]] << parts[1]
   else
     STDERR.puts "Can't parse #{line} as image to keep, aborting"
     exit 3
@@ -51,9 +52,11 @@ apps.each do |app|
   puts "Cleaning #{app}"
   cleaner = IKE::Artifactory::DockerCleaner.new(
     actually_delete: actually_delete,
-    repo_url: [repo_url, app].join('/'),
+    repo_host: artifactory_url,
+    repo_key: repo_key,
+    folder: app,
     days_old: days_to_keep,
-    images_exclude_list: images_to_keep[app],
+    tags_to_exclude: images_to_keep[app],
     user: user,
     password: password,
     most_recent_images: most_recent_images_to_keep
