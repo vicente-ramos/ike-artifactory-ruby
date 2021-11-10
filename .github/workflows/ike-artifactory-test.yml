@@ -23,7 +23,6 @@ jobs:
           bundler install
           bundle exec rake test
       - run: echo "🍏 This job's status is ${{ job.status }}."
-
   build:
     runs-on: ubuntu-latest 
     steps:
@@ -32,13 +31,19 @@ jobs:
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.7'
-      - run: echo "Building gem"
+      - name: Check Tag
+        id: check-tag
+        run: |
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+\.* ]]; then
+              echo ::set-output name=match::true
+          fi
       - name: Build the gem
+        if: steps.check-tag.outputs.match == 'true'
         run: |
           rm -f *.gem
           gem build $(ls *.gemspec)
-      - run: echo "Pushing the gem to rubygems.org"
-      - name: Push the gem 
+      - name: Push the gem
+        if: steps.check-tag.outputs.match == 'true'
         env:
           RUBYGEMS_API_TOKEN: ${{ secrets.RUBYGEMS_API_TOKEN }}
         run: |
@@ -46,4 +51,3 @@ jobs:
           echo -e "---\n:rubygems_api_key: $RUBYGEMS_API_TOKEN" >> ~/.gem/credentials
           chmod 0600 ~/.gem/credentials
           gem push $(ls *.gem)
- 
