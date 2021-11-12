@@ -28,6 +28,12 @@ jobs:
         with:
           name: coverage-report
           path: coverage
+      - name: Upload tests results
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: test-report
+          path: test/html_reports
       - run: echo "🍏 This job's status is ${{ job.status }}."
   lint:
     runs-on: ubuntu-latest

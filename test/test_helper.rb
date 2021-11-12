@@ -10,6 +10,8 @@ SimpleCov.start do
 end
 
 require 'minitest/autorun'
+require "minitest/reporters"
+Minitest::Reporters.use! Minitest::Reporters::HtmlReporter.new
 
 require 'fixtures/repo_data'
 require 'ike_artifactory'
