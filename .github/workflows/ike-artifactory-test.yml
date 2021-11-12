@@ -22,6 +22,12 @@ jobs:
           gem install bundler
           bundler install
           bundle exec rake test
+      - name: Upload coverage results
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage
       - run: echo "🍏 This job's status is ${{ job.status }}."
   build:
     runs-on: ubuntu-latest 
@@ -51,3 +57,4 @@ jobs:
           echo -e "---\n:rubygems_api_key: $RUBYGEMS_API_TOKEN" >> ~/.gem/credentials
           chmod 0600 ~/.gem/credentials
           gem push $(ls *.gem)
+      - run: echo "🍏 This job's status is ${{ job.status }}."
