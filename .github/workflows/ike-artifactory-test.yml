@@ -29,6 +29,26 @@ jobs:
           name: coverage-report
           path: coverage
       - run: echo "🍏 This job's status is ${{ job.status }}."
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+      - name: 💡 Linting the code
+        run: |
+          gem install rubocop
+          rubocop --format github --fail-level F || true
+          rubocop --format html -o rubocop.html  --fail-level F || true
+      - name: Upload linting results
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: linting-report
+          path: rubocop.html
+      - run: echo "🍏 This job's status is ${{ job.status }}."
   build:
     runs-on: ubuntu-latest 
     steps:
