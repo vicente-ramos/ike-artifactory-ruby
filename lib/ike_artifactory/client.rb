@@ -26,7 +26,7 @@ module IKE
       end
 
       def delete_object(path)
-        fetch(path, method: :delete) do |response, request, result|
+        fetch(path, method: :delete, url: @server + '/artifactory/' + @repo_key) do |response, request, result|
           response.code == 204
         end
       end
@@ -76,10 +76,14 @@ module IKE
         true
       end
 
-      def fetch(path, method: :get, prefix: nil)
+      def fetch(path, method: :get, prefix: nil, url: nil)
         retval = nil # Work around Object#stub stomping on return values
 
-        prefix ||= "#{server}/artifactory/api/storage/#{repo_key}"
+        if url
+          prefix = url
+        else
+          prefix ||= "#{server}/artifactory/api/storage/#{repo_key}"
+        end
 
         RestClient::Request.execute(
           :method => method,
